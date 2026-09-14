@@ -1,6 +1,11 @@
 # ERGen — AI-Powered ER Diagram Generator
 
 A fully local, zero-cost ER diagram tool powered by Ollama (local LLM). No cloud APIs, no subscriptions.
+## Demo
+
+![ERGen demo — generating a Customers/Orders ER diagram with Ollama](/demo.png)
+
+*Type a schema prompt, toggle Ollama AI on, and ERGen renders a draggable, zoomable ER diagram — with one-click SVG/HTML export.*
 
 ---
 
