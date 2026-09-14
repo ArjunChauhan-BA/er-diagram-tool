@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ER Diagram Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-name">ERGen</span>
+    </div>
+
+    <div class="ollama-badge" id="ollamaBadge">
+      <span class="badge-dot"></span>
+      <span class="badge-label">Checking Ollama...</span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">INPUT METHOD</div>
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="prompt">Prompt</button>
+        <button class="tab-btn" data-tab="file">File</button>
+      </div>
+
+      <!-- Prompt Tab -->
+      <div class="tab-content active" id="tab-prompt">
+        <textarea id="promptInput" placeholder="Describe your schema...
+
+Example:
+Table: Customers
+- customer_id INT PK
+- name VARCHAR(100)
+- email VARCHAR(255)
+
+Table: Orders
+- order_id INT PK
+- customer_id INT FK → Customers.customer_id
+- total DECIMAL(10,2)
+- created_at DATETIME"></textarea>
+      </div>
+
+      <!-- File Tab -->
+      <div class="tab-content" id="tab-file">
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon">⬆</div>
+          <div class="drop-text">Drop file here</div>
+          <div class="drop-sub">.xlsx · .xls · .csv</div>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden/>
+        </div>
+        <div class="file-info" id="fileInfo" style="display:none">
+          <span class="file-name" id="fileName"></span>
+          <button class="file-clear" id="fileClear">✕</button>
+        </div>
+        <textarea id="filePromptInput" placeholder="Optional: add extra context about PKs, FKs, or relationships..."></textarea>
+      </div>
+
+      <div class="options-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="useOllama" checked/>
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span>Use Ollama AI</span>
+        </label>
+      </div>
+
+      <button class="generate-btn" id="generateBtn">
+        <span class="btn-icon">◈</span>
+        <span class="btn-text">Generate ER Diagram</span>
+      </button>
+
+      <div class="error-box" id="errorBox" style="display:none"></div>
+    </div>
+
+    <!-- Schema Tree -->
+    <div class="panel schema-panel" id="schemaPanel" style="display:none">
+      <div class="panel-label">SCHEMA OVERVIEW</div>
+      <div id="schemaTree"></div>
+    </div>
+
+    <!-- Export -->
+    <div class="panel export-panel" id="exportPanel" style="display:none">
+      <div class="panel-label">EXPORT</div>
+      <button class="export-btn" id="exportSVG">Export SVG</button>
+      <button class="export-btn" id="exportHTML">Export HTML</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CANVAS -->
+  <main class="canvas-area">
+    <div class="canvas-toolbar" id="canvasToolbar" style="display:none">
+      <button class="tool-btn" id="btnZoomIn" title="Zoom In">＋</button>
+      <button class="tool-btn" id="btnZoomOut" title="Zoom Out">－</button>
+      <button class="tool-btn" id="btnFit" title="Fit to Screen">⊡</button>
+      <button class="tool-btn" id="btnReset" title="Reset Layout">↺</button>
+      <div class="toolbar-sep"></div>
+      <span class="zoom-label" id="zoomLabel">100%</span>
+    </div>
+
+    <div class="canvas-empty" id="canvasEmpty">
+      <div class="empty-glyph">⬡</div>
+      <div class="empty-title">No diagram yet</div>
+      <div class="empty-sub">Describe your schema on the left and click Generate</div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay" style="display:none">
+      <div class="loader-ring"></div>
+      <div class="loader-text" id="loaderText">Parsing schema...</div>
+    </div>
+
+    <svg id="erCanvas"></svg>
+  </main>
+
+</div>
+
+<script src="/static/js/er.js"></script>
+
+<!-- ── Detail Modal ── -->
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal-box" id="modalBox">
+  <div class="modal-header">
+    <div class="modal-header-left">
+      <span class="modal-icon">⬡</span>
+      <div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-meta"  id="modalMeta"></div>
+      </div>
+    </div>
+    <button class="modal-close" id="modalClose">&#x2715;</button>
+  </div>
+  <div class="modal-body">
+    <div class="modal-section">
+      <div class="modal-section-label">COLUMNS</div>
+      <div class="modal-table-wrap" id="modalCols"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-label">RELATIONSHIPS</div>
+      <div id="modalRels"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
